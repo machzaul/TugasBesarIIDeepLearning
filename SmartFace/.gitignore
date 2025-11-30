@@ -1,0 +1,82 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Model files (large files)
+*.pth
+*.pt
+*.h5
+*.pkl
+*.pickle
+*.onnx
+*.pb
+*.tflite
+*.bin
+*.weights
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Data files
+*.csv
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!tsconfig.*.json
+!components.json
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.sqlite3
+
+# Dataset directories
+dataset/
+datasets/
+data/
+faces/
+images/
+training_data/
+
+# OS
+Thumbs.db
+.DS_Store
+*.swp
+*.swo
+*~
