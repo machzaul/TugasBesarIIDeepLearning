@@ -1,0 +1,61 @@
+# Model files (large files - DO NOT PUSH)
+*.pth
+*.pt
+*.h5
+*.pkl
+*.pickle
+*.onnx
+*.pb
+*.tflite
+*.bin
+*.weights
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files
+*.csv
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+
+# Dataset folders
+dataset/
+datasets/
+data/
+faces/
+images/
+training_data/
