@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import CameraView from "@/components/CameraView";
 import AttendanceStatus from "@/components/AttendanceStatus";
 import { useToast } from "@/hooks/use-toast";
+import { parseStudentCSV, StudentInfo, StudentDatabase } from "@/lib/studentData";
+import labelsData from "@/labels-nim.csv?raw";
 
 interface Prediction {
   label: string;
@@ -13,16 +15,26 @@ const Index = () => {
   const { toast } = useToast();
   const [isPresent, setIsPresent] = useState(false);
   const [studentName, setStudentName] = useState<string>("");
+  const [studentInfo, setStudentInfo] = useState<StudentInfo | null>(null);
   const [attendanceTime, setAttendanceTime] = useState<string>("");
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [confidence, setConfidence] = useState<number>(0);
+  const [studentDatabase, setStudentDatabase] = useState<StudentDatabase>({});
+
+  // Parse CSV and create database
+  useEffect(() => {
+    const database = parseStudentCSV(labelsData);
+    setStudentDatabase(database);
+  }, []);
 
   const handleDetection = (detected: boolean, preds?: Prediction[]) => {
     if (detected && preds && preds.length > 0) {
       const topPrediction = preds[0];
+      const info = studentDatabase[topPrediction.label];
 
       setIsPresent(true);
       setStudentName(topPrediction.label);
+      setStudentInfo(info || null);
       setConfidence(topPrediction.confidence);
       setPredictions(preds);
       setAttendanceTime(
@@ -35,9 +47,9 @@ const Index = () => {
 
       toast({
         title: "Wajah Terdeteksi!",
-        description: `${
-          topPrediction.label
-        } (${topPrediction.confidence.toFixed(2)}%)`,
+        description: `${topPrediction.label} (${topPrediction.confidence.toFixed(
+          2
+        )}%)`,
       });
     }
   };
@@ -126,6 +138,7 @@ const Index = () => {
             <AttendanceStatus
               isPresent={isPresent}
               studentName={studentName}
+              studentInfo={studentInfo}
               timestamp={attendanceTime}
               confidence={confidence}
               predictions={predictions}
