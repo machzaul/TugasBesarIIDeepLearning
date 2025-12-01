@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import AttendanceButton from "@/components/ui/AttendanceButton";
 import { CheckCircle2, Clock, User, Award, IdCard } from "lucide-react";
 
 interface Prediction {
@@ -41,73 +42,63 @@ const AttendanceStatus = ({
     });
 
   return (
-    <Card className="p-8">
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+    <Card className="pt-3 px-6 pb-6">
+      <h2 className="text-xl font-medium mb-2 flex items-center gap-2">
         <div
-          className="w-1 h-8 rounded-full"
+          className="w-1 h-5 rounded-full"
           style={{ backgroundColor: "hsl(var(--scan-primary))" }}
         />
         Status Kehadiran
       </h2>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {isPresent ? (
           <div className="fade-in">
             {/* Status Badge */}
             <div
-              className="p-8 rounded-3xl mb-6 border-2"
+              className="px-4 py-3 rounded-xl mb-4 border-2 flex flex-col gap-1"
               style={{
-                background:
-                  "linear-gradient(135deg, hsl(var(--scan-success) / 0.08), hsl(var(--scan-success) / 0.15))",
+                backgroundColor: "hsl(var(--scan-success) / 0.1)",
                 borderColor: "hsl(var(--scan-success) / 0.4)",
               }}
             >
               {/* Header dengan Icon dan Status */}
-              <div className="flex items-start gap-4 mb-4">
+              <div className="flex items-center gap-2 mb-1">
                 <CheckCircle2
-                  className="w-14 h-14 flex-shrink-0 mt-1"
+                  className="w-5 h-5 flex-shrink-0"
                   style={{ color: "hsl(var(--scan-success))" }}
                 />
-                <div>
-                  <p
-                    className="text-4xl font-bold leading-tight"
-                    style={{ color: "hsl(var(--scan-success))" }}
-                  >
-                    HADIR
-                  </p>
-                </div>
+                <p
+                  className="text-lg font-bold leading-tight tracking-wide"
+                  style={{ color: "hsl(var(--scan-success))" }}
+                >
+                  Hadir
+                </p>
               </div>
-
               {/* Student Info */}
               {studentName && (
-                <div className="space-y-3 ml-0">
-                  {/* Nama */}
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">
-                      {studentName}
-                    </p>
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <p className="text-base font-semibold text-foreground mb-0">
+                    {studentName}
+                  </p>
 
-                  {/* NIM dan Kelas */}
                   {studentInfo && (
-                    <div className="space-y-2 pt-2 border-t border-border/50">
-                      <div className="flex items-center gap-3">
-                        <IdCard className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">NIM:</span>
-                          <span className="text-base font-semibold text-foreground">
-                            {studentInfo.nim}
-                          </span>
-                        </div>
+                    <div className="pt-1 border-t border-border/50 flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          NIM:
+                        </span>
+                        <span className="text-sm font-medium text-foreground">
+                          {studentInfo.nim}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <User className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Kelas:</span>
-                          <span className="text-base font-semibold text-foreground">
-                            {studentInfo.kelas}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          Kelas:
+                        </span>
+                        <span className="text-sm font-medium text-foreground">
+                          {studentInfo.kelas}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -117,24 +108,21 @@ const AttendanceStatus = ({
 
             {/* Confidence */}
             {confidence > 0 && (
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-transparent mb-6 border border-blue-100">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-semibold text-foreground">
-                      Confidence
-                    </span>
-                  </div>
-                  <span className="text-lg font-bold text-blue-600">
-                    {confidence.toFixed(2)}%
+              <div className="mb-3">
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-sm text-muted-foreground">
+                    Confidence
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {Math.round(confidence)}%
                   </span>
                 </div>
-                <div className="w-full h-2.5 bg-blue-100 rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all duration-500"
+                    className="h-full rounded-full transition-all duration-300"
                     style={{
                       width: `${confidence}%`,
-                      background: "linear-gradient(90deg, hsl(var(--scan-primary)), hsl(var(--scan-success)))",
+                      backgroundColor: "hsl(var(--scan-primary))",
                     }}
                   />
                 </div>
@@ -143,35 +131,41 @@ const AttendanceStatus = ({
 
             {/* Top 3 Predictions */}
             {predictions.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-foreground">
-                  <Award className="w-4 h-4" />
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold mb-3 text-foreground">
                   Top 3 Prediksi
                 </h3>
                 <div className="space-y-2">
                   {predictions.map((pred, idx) => (
                     <div
                       key={idx}
-                      className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-muted/40 to-transparent border border-border/50 hover:border-border transition-colors"
+                      className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 border border-border/50 hover:border-border transition-colors"
                     >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div 
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
                           style={{
-                            background: idx === 0 
-                              ? "linear-gradient(135deg, hsl(var(--scan-primary)), hsl(var(--scan-success)))"
-                              : idx === 1
-                              ? "hsl(var(--scan-primary))"
-                              : "hsl(var(--scan-primary) / 0.6)"
+                            backgroundColor:
+                              idx === 0
+                                ? "hsl(var(--scan-primary))"
+                                : idx === 1
+                                ? "hsl(var(--scan-primary) / 0.8)"
+                                : "hsl(var(--scan-primary) / 0.6)",
                           }}
                         >
                           {idx + 1}
                         </div>
-                        <span className="text-sm font-medium text-foreground truncate">
+                        <span className="text-sm font-normal text-foreground truncate">
                           {pred.label}
                         </span>
                       </div>
-                      <span className="text-sm font-bold ml-2 flex-shrink-0" style={{ color: "hsl(var(--scan-primary))" }}>
+                      <span
+                        className="text-sm font-normal ml-2 flex-shrink-0"
+                        style={{
+                          color: "hsl(var(--scan-primary))",
+                          fontWeight: 400,
+                        }}
+                      >
                         {pred.confidence.toFixed(2)}%
                       </span>
                     </div>
@@ -181,37 +175,29 @@ const AttendanceStatus = ({
             )}
 
             {/* Time Info */}
-            <div className="flex items-center justify-center gap-2 text-muted-foreground mb-6 py-3 bg-muted/30 rounded-lg">
-              <Clock className="w-4 h-4" />
-              <span className="text-sm font-medium">Terdeteksi pada {currentTime}</span>
-            </div>
+
+            {/* (Removed duplicate time info; history panel shows records) */}
 
             {/* Mark Attendance Button */}
-            <Button
-              onClick={onMarkAttendance}
-              className="w-full gap-2 py-6 text-base font-semibold rounded-xl transition-all hover:shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, hsl(var(--scan-primary)), hsl(var(--scan-success)))",
-                color: "hsl(var(--primary-foreground))",
-              }}
-            >
-              <CheckCircle2 className="w-5 h-5" />
-              Catat Kehadiran
-            </Button>
+            <div className="flex justify-center mt-4">
+              <AttendanceButton onClick={onMarkAttendance} />
+            </div>
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-muted/50 to-muted flex items-center justify-center">
-              <CheckCircle2 className="w-10 h-10 text-muted-foreground/40" />
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/40 flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-muted-foreground/40" />
             </div>
-            <p className="text-lg font-semibold text-foreground mb-2">
+            <p className="text-base font-semibold text-foreground mb-1">
               Belum Ada Kehadiran
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Aktifkan kamera atau upload foto untuk memulai proses absensi
             </p>
           </div>
         )}
+
+        {/* Attendance history removed from this panel per user request */}
       </div>
     </Card>
   );

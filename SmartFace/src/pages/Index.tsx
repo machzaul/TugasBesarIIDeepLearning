@@ -2,8 +2,13 @@ import { useState, useEffect } from "react";
 import { Calendar } from "lucide-react";
 import CameraView from "@/components/CameraView";
 import AttendanceStatus from "@/components/AttendanceStatus";
+import AttendanceHistory from "@/components/AttendanceHistory";
 import { useToast } from "@/hooks/use-toast";
-import { parseStudentCSV, StudentInfo, StudentDatabase } from "@/lib/studentData";
+import {
+  parseStudentCSV,
+  StudentInfo,
+  StudentDatabase,
+} from "@/lib/studentData";
 import labelsData from "@/labels-nim.csv?raw";
 
 interface Prediction {
@@ -20,6 +25,7 @@ const Index = () => {
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [confidence, setConfidence] = useState<number>(0);
   const [studentDatabase, setStudentDatabase] = useState<StudentDatabase>({});
+  const [attendanceList, setAttendanceList] = useState<any[]>([]);
 
   // Parse CSV and create database
   useEffect(() => {
@@ -30,10 +36,14 @@ const Index = () => {
   const handleDetection = (detected: boolean, preds?: Prediction[]) => {
     if (detected && preds && preds.length > 0) {
       const topPrediction = preds[0];
-      const info = studentDatabase[topPrediction.label];
+      // try exact label, then lowercase label for robustness
+      const info =
+        studentDatabase[topPrediction.label] ||
+        studentDatabase[topPrediction.label?.toLowerCase()];
 
       setIsPresent(true);
-      setStudentName(topPrediction.label);
+      // prefer the nicely-cased name from CSV when available
+      setStudentName(info?.name || topPrediction.label);
       setStudentInfo(info || null);
       setConfidence(topPrediction.confidence);
       setPredictions(preds);
@@ -47,9 +57,9 @@ const Index = () => {
 
       toast({
         title: "Wajah Terdeteksi!",
-        description: `${topPrediction.label} (${topPrediction.confidence.toFixed(
-          2
-        )}%)`,
+        description: `${
+          topPrediction.label
+        } (${topPrediction.confidence.toFixed(2)}%)`,
       });
     }
   };
@@ -78,6 +88,18 @@ const Index = () => {
           description: data.message,
           variant: "default",
         });
+        // Use backend's returned record to update UI immediately
+        if (data.record) {
+          setIsPresent(true);
+          setStudentName(data.record.label);
+          const info = studentDatabase[data.record.label];
+          setStudentInfo(info || null);
+          // Show timestamp from backend (date + time)
+          setAttendanceTime(`${data.record.date} ${data.record.time}`);
+          setConfidence(data.record.confidence || confidence);
+          // Refresh today's attendance list
+          fetchAttendanceForToday();
+        }
       } else {
         toast({
           title: "Gagal!",
@@ -101,34 +123,57 @@ const Index = () => {
     day: "numeric",
   });
 
+  const fetchAttendanceForToday = async () => {
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await fetch(`http://localhost:5000/attendance?date=${today}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data && data.success && Array.isArray(data.data)) {
+        setAttendanceList(data.data);
+      }
+    } catch (err) {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    fetchAttendanceForToday();
+  }, []);
+
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm flex-shrink-0">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <img src="/Scan.png" alt="Logo" className="w-16 h-16" />
+            <div className="flex items-center gap-3">
+              <img src="/Scan.png" alt="Logo" className="w-12 h-12" />
               <div>
-                <h1 className="text-2xl font-bold">Deep Learning RA</h1>
-                <p className="text-sm text-muted-foreground">
+                <h1 className="text-xl font-bold">Deep Learning RA</h1>
+                <p className="text-xs text-muted-foreground">
                   Sistem Absensi Face Recognition
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted">
-              <Calendar className="w-5 h-5 text-muted-foreground" />
-              <span className="text-sm font-medium">{currentDate}</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <span className="text-xs font-medium">{currentDate}</span>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-6 py-8 overflow-auto">
-        <div className="grid lg:grid-cols-3 gap-8 h-full">
-          {/* Left Column - Camera */}
+      <main className="flex-1 container mx-auto px-4 py-6 overflow-auto">
+        <div className="grid lg:grid-cols-4 gap-3 h-full">
+          {/* Left Column - Attendance History Sidebar */}
+          <div className="lg:col-span-1">
+            <AttendanceHistory attendanceList={attendanceList} />
+          </div>
+
+          {/* Center Column - Camera (wide) */}
           <div className="lg:col-span-2">
             <CameraView onDetection={handleDetection} />
           </div>
@@ -149,9 +194,9 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-4 flex-shrink-0">
-        <div className="container mx-auto px-6 text-center text-sm text-muted-foreground">
-          <p>© 2024 Deep Learning RA - Face Recognition Attendance System</p>
+      <footer className="border-t border-border py-3 flex-shrink-0">
+        <div className="container mx-auto px-4 text-center text-xs text-muted-foreground">
+          <p>Deep Learning RA - Trio Kwek Kwek Teams</p>
         </div>
       </footer>
     </div>

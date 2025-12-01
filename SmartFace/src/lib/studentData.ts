@@ -33,6 +33,16 @@ export const parseStudentCSV = (csvContent: string): StudentDatabase => {
           kelas,
         };
       }
+
+      // Also store a lowercase-keyed entry to make lookup case-insensitive
+      const lower = label.toLowerCase();
+      if (!database[lower]) {
+        database[lower] = {
+          name: label,
+          nim,
+          kelas,
+        };
+      }
     }
   }
 
